@@ -63,6 +63,8 @@
 .chess-study .chessground-pgn-container {
 	display: flex;
 	height: 450px;
+	align-items: center;
+	justify-content: center;
 }
 
 .chess-study .chessground-pgn-container .chessground-container {

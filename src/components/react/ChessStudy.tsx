@@ -56,7 +56,7 @@ export const ChessStudy = ({
 	dataAdapter,
 }: AppProps) => {
 	// Parse Obsidian / Code Block Settings
-	const { boardColor, boardOrientation, fen, viewComments, chessStudyId } =
+	const { boardColor, boardOrientation, fen, viewComments, viewMoves, chessStudyId } =
 		parseUserConfig(pluginSettings, source);
 
 	// Setup Chessground API
@@ -312,38 +312,40 @@ export const ChessStudy = ({
 						shapes={gameState.currentMove?.shapes}
 					/>
 				</div>
-				<div className="pgn-container">
-					<PgnViewer
-						history={gameState.study.moves}
-						currentMoveId={gameState.currentMove?.moveId}
-						firstPlayer={firstPlayer}
-						initialMoveNumber={initialMoveNumber}
-						onUndoButtonClick={() =>
-							dispatch({ type: 'REMOVE_LAST_MOVE_FROM_HISTORY' })
-						}
-						onBackButtonClick={() =>
-							dispatch({ type: 'DISPLAY_PREVIOUS_MOVE_IN_HISTORY' })
-						}
-						onForwardButtonClick={() =>
-							dispatch({ type: 'DISPLAY_NEXT_MOVE_IN_HISTORY' })
-						}
-						onMoveItemClick={(moveId: string) =>
-							dispatch({
-								type: 'DISPLAY_SELECTED_MOVE_IN_HISTORY',
-								moveId: moveId,
-							})
-						}
-						onSaveButtonClick={onSaveButtonClick}
-						onCopyButtonClick={() => {
-							try {
-								navigator.clipboard.writeText(chessLogic.fen())
-								new Notice('Copied to clipboard!');
-							} catch (e) {
-								new Notice('Could not copy to clipboard:', e);
+				{viewMoves && (
+					<div className="pgn-container">
+						<PgnViewer
+							history={gameState.study.moves}
+							currentMoveId={gameState.currentMove?.moveId}
+							firstPlayer={firstPlayer}
+							initialMoveNumber={initialMoveNumber}
+							onUndoButtonClick={() =>
+								dispatch({ type: 'REMOVE_LAST_MOVE_FROM_HISTORY' })
 							}
-						}}
-					/>
-				</div>
+							onBackButtonClick={() =>
+								dispatch({ type: 'DISPLAY_PREVIOUS_MOVE_IN_HISTORY' })
+							}
+							onForwardButtonClick={() =>
+								dispatch({ type: 'DISPLAY_NEXT_MOVE_IN_HISTORY' })
+							}
+							onMoveItemClick={(moveId: string) =>
+								dispatch({
+									type: 'DISPLAY_SELECTED_MOVE_IN_HISTORY',
+									moveId: moveId,
+								})
+							}
+							onSaveButtonClick={onSaveButtonClick}
+							onCopyButtonClick={() => {
+								try {
+									navigator.clipboard.writeText(chessLogic.fen())
+									new Notice('Copied to clipboard!');
+								} catch (e) {
+									new Notice('Could not copy to clipboard:', e);
+								}
+							}}
+						/>
+					</div>
+				)}
 			</div>
 			{viewComments && (
 				<div className="CommentSection">

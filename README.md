@@ -73,6 +73,7 @@ Here are the available settings for a `chessStudy` code block:
 | `boardColor`       | `green` \| `brown` | Color of the board                               |
 | `fen`              | Valid FEN string   | FEN string                                       |
 | `viewComments`     | `true`  \| `false` | Whether to display the comments section          |
+| `viewMoves`        | `true`  \| `false` | Whether to display the moves section             |
 
 You can permanently set some settings in the [Obsidian](https://obsidian.md/) plugin settings for Obsidian Chess Study.
 

@@ -5,7 +5,8 @@ export interface ChessStudyPluginSettings {
 	boardOrientation: 'white' | 'black';
 	boardColor: 'green' | 'brown';
 	fen: string;
-	viewComments: true | false;
+	viewComments: boolean;
+	viewMoves: boolean;
 }
 
 export const DEFAULT_SETTINGS: ChessStudyPluginSettings = {
@@ -13,6 +14,7 @@ export const DEFAULT_SETTINGS: ChessStudyPluginSettings = {
 	boardColor: 'green',
 	fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
 	viewComments: true,
+	viewMoves: true,
 };
 
 export class SettingsTab extends PluginSettingTab {
@@ -82,7 +84,24 @@ export class SettingsTab extends PluginSettingTab {
 				dropdown
 					.setValue(this.plugin.settings.viewComments)
 					.onChange((viewComments) => {
-						this.plugin.settings.viewComments = (viewComments == true || viewComments == "true" || viewComments == "True") as true | false;
+						this.plugin.settings.viewComments = (viewComments == true
+							|| viewComments == "true" || viewComments == "True") as boolean;
+						this.plugin.saveSettings();
+					});
+			});
+
+		new Setting(containerEl)
+			.setName('View Moves')
+			.setDesc('Sets the default view of the moves')
+			.addDropdown((dropdown) => {
+				dropdown.addOption('true', 'True');
+				dropdown.addOption('false', 'False');
+
+				dropdown
+					.setValue(this.plugin.settings.viewMoves)
+					.onChange((viewMoves) => {
+						this.plugin.settings.viewMoves = (viewMoves == true
+							|| viewMoves == "true" || viewMoves == "True") as boolean;
 						this.plugin.saveSettings();
 					});
 			});
