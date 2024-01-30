@@ -37,9 +37,10 @@ export const displayMoveInHistory = (
 	draft: Draft<GameState>,
 	chessView: ChessgroundApi,
 	setChessLogic: React.Dispatch<React.SetStateAction<Chess>>,
-	options: { offset: number; selectedMoveId: string | null } = {
+	options: { offset: number; selectedMoveId: string | null; fen: string | null } = {
 		offset: 0,
 		selectedMoveId: null,
+		fen: null,
 	}
 ): Draft<GameState> => {
 	let moveToDisplay: ChessStudyMove | VariantMove | null = null;
@@ -73,10 +74,14 @@ export const displayMoveInHistory = (
 
 	if (!moveToDisplay) return draft;
 
-	const chess = new Chess(moveToDisplay.after);
+	const chess = (moveToDisplay.moveId === 'root')
+		? (options.fen)
+			? new Chess(options.fen)
+			: new Chess()
+		: new Chess(moveToDisplay.after);
 
 	chessView.set({
-		fen: moveToDisplay.after,
+		fen: chess.fen(),
 		check: chess.isCheck(),
 		movable: {
 			free: false,
@@ -96,6 +101,17 @@ export const displayMoveInHistory = (
 export const getCurrentMove = (
 	draft: Draft<GameState>
 ): Draft<ChessStudyMove> | Draft<VariantMove> => {
+	if (draft.study.moves.length === 0) {
+		draft.currentMove = {
+			moveId: 'root',
+			variants: [],
+			shapes: [],
+			comment: null,
+		};
+		draft.study.moves.push(draft.currentMove);
+		return draft.currentMove;
+	}
+
 	const currentMoveId = draft.currentMove?.moveId;
 	const moves = draft.study.moves;
 

@@ -69,7 +69,7 @@ export const ChessStudy = ({
 		const firstPlayer = chess.turn();
 		const initialMoveNumber = chess.moveNumber();
 
-		chessStudyData.moves.forEach((move) => {
+		chessStudyData.moves.filter((move) => move.moveId !== 'root').forEach((move) => {
 			chess.move({
 				from: move.from,
 				to: move.to,
@@ -86,7 +86,8 @@ export const ChessStudy = ({
 		(draft, action) => {
 			switch (action.type) {
 				case 'DISPLAY_NEXT_MOVE_IN_HISTORY': {
-					if (!chessView || !draft || draft.study.moves.length == 0) return draft;
+					if (!chessView || !draft || draft.study.moves.length === 0) return draft;
+					if (draft.study.moves.length === 1 && draft.study.moves[0].moveId === 'root') return draft;
 
 					displayMoveInHistory(draft, chessView, setChessLogic, {
 						offset: 1,
@@ -96,17 +97,20 @@ export const ChessStudy = ({
 					return draft;
 				}
 				case 'DISPLAY_PREVIOUS_MOVE_IN_HISTORY': {
-					if (!chessView || !draft || draft.study.moves.length == 0) return draft;
+					if (!chessView || !draft || draft.study.moves.length === 0) return draft;
+					if (draft.currentMove?.moveId === 'root') return draft;
 
 					displayMoveInHistory(draft, chessView, setChessLogic, {
 						offset: -1,
 						selectedMoveId: null,
+						fen: fen,
 					});
 
 					return draft;
 				}
 				case 'REMOVE_LAST_MOVE_FROM_HISTORY': {
-					if (!chessView || !draft || draft.study.moves.length == 0) return draft;
+					if (!chessView || !draft || draft.study.moves.length === 0) return draft;
+					if (draft.study.moves.length === 1 && draft.study.moves[0].moveId === 'root') return draft;
 
 					let moves = draft.study.moves;
 
@@ -156,6 +160,7 @@ export const ChessStudy = ({
 				}
 				case 'DISPLAY_SELECTED_MOVE_IN_HISTORY': {
 					if (!chessView || !draft || draft.study.moves.length == 0) return draft;
+					if (draft.study.moves.length === 1 && draft.study.moves[0].moveId === 'root') return draft;
 
 					const selectedMoveId = action.moveId;
 
@@ -167,7 +172,7 @@ export const ChessStudy = ({
 					return draft;
 				}
 				case 'SYNC_SHAPES': {
-					if (!chessView || !draft || draft.study.moves.length == 0) return draft;
+					if (!chessView || !draft) return draft;
 
 					const move = getCurrentMove(draft);
 
@@ -177,7 +182,7 @@ export const ChessStudy = ({
 					return draft;
 				}
 				case 'SYNC_COMMENT': {
-					if (!chessView || !draft || draft.study.moves.length == 0) return draft;
+					if (!chessView || !draft) return draft;
 
 					const move = getCurrentMove(draft);
 
@@ -315,7 +320,12 @@ export const ChessStudy = ({
 				{viewMoves && (
 					<div className="pgn-container">
 						<PgnViewer
-							history={gameState.study.moves}
+							history={
+								(gameState.study.moves.length > 0
+										&& gameState.study.moves[0].moveId === 'root')
+									? gameState.study.moves.slice(1)
+									: gameState.study.moves
+							}
 							currentMoveId={gameState.currentMove?.moveId}
 							firstPlayer={firstPlayer}
 							initialMoveNumber={initialMoveNumber}
