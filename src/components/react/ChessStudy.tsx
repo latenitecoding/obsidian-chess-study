@@ -229,6 +229,39 @@ export const ChessStudy = ({
 								fen: newMove.after,
 								check: tempChess.isCheck(),
 							});
+						} else {
+							let altLine = parent.variants[variant.variantIndex].moves
+								.slice(0, moveIndex + 1)
+								.map((move) => {
+									return {
+										...move,
+										moveId: nanoid(),
+									};
+								});
+
+							const move = {
+								...newMove,
+								moveId: moveId,
+								shapes: [],
+								comment: null,
+							};
+
+							altLine.push(move);
+
+							parent.variants.push({
+								parentMoveId: parent.moveId,
+								variantId: nanoid(),
+								moves: altLine,
+							});
+
+							const tempChess = new Chess(newMove.after);
+
+							draft.currentMove = move;
+
+							chessView?.set({
+								fen: newMove.after,
+								check: tempChess.isCheck(),
+							});
 						}
 					} else {
 						//handle main line
