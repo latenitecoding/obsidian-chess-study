@@ -29,6 +29,7 @@ export interface ChessStudyFileData {
 	version: string;
 	header: { title: string | null };
 	moves: ChessStudyMove[];
+	currentMove: ChessStudyMove | null;
 }
 
 export class ChessStudyDataAdapter {

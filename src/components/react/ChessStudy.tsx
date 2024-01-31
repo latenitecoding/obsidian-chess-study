@@ -69,16 +69,21 @@ export const ChessStudy = ({
 		const firstPlayer = chess.turn();
 		const initialMoveNumber = chess.moveNumber();
 
-		chessStudyData.moves.filter((move) => move.moveId !== 'root').forEach((move) => {
-			chess.move({
-				from: move.from,
-				to: move.to,
-				promotion: move.promotion,
-			});
-		});
+		if (chessStudyData.currentMove && chessStudyData.currentMove.moveId !== 'root') {
+			for (let i = 0; i < chessStudyData.moves.length; i++) {
+				const move = chessStudyData.moves[i];
+				if (move.moveId === 'root') continue;
+				chess.move({
+					from: move.from,
+					to: move.to,
+					promotion: move.promotion,
+				});
+				if (move.moveId === chessStudyData.currentMove.moveId) break;
+			};
+		}
 
 		return [firstPlayer, initialMoveNumber, chess];
-	}, [chessStudyData.moves]);
+	}, [chessStudyData]);
 
 	const [chessLogic, setChessLogic] = useState(initialChessLogic);
 
@@ -313,7 +318,14 @@ export const ChessStudy = ({
 			}
 		},
 		{
-			currentMove: chessStudyData.moves[chessStudyData.moves.length - 1],
+			currentMove: (chessStudyData.currentMove)
+				? chessStudyData.currentMove
+				: {
+					moveId: 'root',
+					variants: [],
+					shapes: [],
+					comment: null,
+				},
 			isViewOnly: false,
 			study: chessStudyData,
 		}
@@ -321,12 +333,16 @@ export const ChessStudy = ({
 
 	const onSaveButtonClick = useCallback(async () => {
 		try {
-			await dataAdapter.saveFile(gameState.study, chessStudyId);
+			const saveData = {
+				...gameState.study,
+				currentMove: gameState.currentMove,
+			};
+			await dataAdapter.saveFile(saveData, chessStudyId);
 			new Notice('Save successfull!');
 		} catch (e) {
 			new Notice('Something went wrong during saving:', e);
 		}
-	}, [chessStudyId, dataAdapter, gameState.study]);
+	}, [chessStudyId, dataAdapter, gameState]);
 
 	return (
 		<div className="chess-study">
