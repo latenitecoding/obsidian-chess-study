@@ -33,11 +33,52 @@ export const findMoveIndex = (
 	return { variant: null, moveIndex: -1 };
 };
 
+export const displayInitialBoard = (
+	draft: Draft<GameState>,
+	chessView: ChessgroundApi,
+	setChessLogic: React.Dispatch<React.SetStateAction<Chess>>,
+	options: { fen?: string | null } = {
+		fen: null,
+	}
+): Draft<GameState> => {
+	const moves = draft.study.moves;
+
+	const chess = (options.fen)
+		? new Chess(options.fen)
+		: new Chess();
+
+	chessView.set({
+		fen: chess.fen(),
+		check: chess.isCheck(),
+		movable: {
+			free: false,
+			color: toColor(chess),
+			dests: toDests(chess),
+		},
+		turnColor: toColor(chess),
+	});
+
+	draft.currentMove = (moves.length > 0 && moves[0].moveId === 'root')
+		? moves[0]
+		: (draft.currentMove && draft.currentMove.moveId === 'root')
+			? draft.currentMove
+			: {
+				moveId: 'root',
+				variants: [],
+				shapes: [],
+				comment: null,
+			};
+
+	setChessLogic(chess);
+
+	return draft;
+};
+
 export const displayMoveInHistory = (
 	draft: Draft<GameState>,
 	chessView: ChessgroundApi,
 	setChessLogic: React.Dispatch<React.SetStateAction<Chess>>,
-	options: { offset: number; selectedMoveId: string | null; fen: string | null } = {
+	options: { offset: number; selectedMoveId: string | null; fen?: string | null } = {
 		offset: 0,
 		selectedMoveId: null,
 		fen: null,

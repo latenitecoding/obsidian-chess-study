@@ -15,6 +15,7 @@ import {
 	VariantMove,
 } from 'src/lib/storage';
 import {
+	displayInitialBoard,
 	displayMoveInHistory,
 	findMoveIndex,
 	getCurrentMove,
@@ -43,6 +44,7 @@ export interface GameState {
 export type GameActions =
 	| { type: 'ADD_MOVE_TO_HISTORY'; move: Move }
 	| { type: 'REMOVE_LAST_MOVE_FROM_HISTORY' }
+	| { type: 'DISPLAY_INITIAL_BOARD' }
 	| { type: 'DISPLAY_NEXT_MOVE_IN_HISTORY' }
 	| { type: 'DISPLAY_PREVIOUS_MOVE_IN_HISTORY' }
 	| { type: 'DISPLAY_SELECTED_MOVE_IN_HISTORY'; moveId: string }
@@ -90,6 +92,16 @@ export const ChessStudy = ({
 	const [gameState, dispatch] = useImmerReducer<GameState, GameActions>(
 		(draft, action) => {
 			switch (action.type) {
+				case 'DISPLAY_INITIAL_BOARD': {
+					if (!chessView || !draft || draft.study.moves.length === 0) return draft;
+					if (draft.study.moves.length === 1 && draft.study.moves[0].moveId === 'root') return draft;
+
+					displayInitialBoard(draft, chessView, setChessLogic, {
+						fen: fen,
+					});
+
+					return draft;
+				}
 				case 'DISPLAY_NEXT_MOVE_IN_HISTORY': {
 					if (!chessView || !draft || draft.study.moves.length === 0) return draft;
 					if (draft.study.moves.length === 1 && draft.study.moves[0].moveId === 'root') return draft;
@@ -392,6 +404,9 @@ export const ChessStudy = ({
 									type: 'DISPLAY_SELECTED_MOVE_IN_HISTORY',
 									moveId: moveId,
 								})
+							}
+							onResetButtonClick={() =>
+								dispatch({ type: 'DISPLAY_INITIAL_BOARD' })
 							}
 							onSaveButtonClick={onSaveButtonClick}
 							onCopyButtonClick={() => {
