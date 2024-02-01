@@ -103,7 +103,7 @@ export const ChessStudy = ({
 				}
 				case 'DISPLAY_PREVIOUS_MOVE_IN_HISTORY': {
 					if (!chessView || !draft || draft.study.moves.length === 0) return draft;
-					if (draft.currentMove?.moveId === 'root') return draft;
+					if (draft.currentMove === null || draft.currentMove.moveId === 'root') return draft;
 
 					displayMoveInHistory(draft, chessView, setChessLogic, {
 						offset: -1,

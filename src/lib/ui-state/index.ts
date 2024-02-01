@@ -72,9 +72,9 @@ export const displayMoveInHistory = (
 		}
 	}
 
-	if (!moveToDisplay) return draft;
+	if (!moveToDisplay && offset > 0) return draft;
 
-	const chess = (moveToDisplay.moveId === 'root')
+	const chess = (!moveToDisplay || moveToDisplay.moveId === 'root')
 		? (options.fen)
 			? new Chess(options.fen)
 			: new Chess()
