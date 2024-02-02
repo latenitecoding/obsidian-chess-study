@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, ClipboardList, Copy, ListRestart, Microscope, Save, Undo2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ClipboardPaste, Copy, ListRestart, Microscope, Save, Undo2 } from 'lucide-react';
 import * as React from 'react';
 import { ReactNode, useEffect, useMemo, useRef } from 'react';
 import { ChessStudyMove } from 'src/lib/storage';
@@ -322,7 +322,7 @@ export const PgnViewer = React.memo(
 						<Save strokeWidth={'1px'} />
 					</button>
 					<button className="study-button" onClick={() => onPgnCopyButtonClick()}>
-						<ClipboardList strokeWidth={'1px'} />
+						<ClipboardPaste strokeWidth={'1px'} />
 					</button>
 					<button className="study-button" onClick={() => onFenCopyButtonClick()}>
 						<Copy strokeWidth={'1px'} />

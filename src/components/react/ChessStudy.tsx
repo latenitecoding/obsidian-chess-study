@@ -343,6 +343,56 @@ export const ChessStudy = ({
 		}
 	);
 
+	const onCopyButtonClick = useCallback(async (pgn_or_fen: 'pgn' | 'fen') => {
+		if (pgn_or_fen === 'fen') {
+			try {
+				navigator.clipboard.writeText(chessLogic.fen())
+				new Notice('FEN copied to clipboard!');
+			} catch (e) {
+				new Notice('Could not copy to clipboard:', e);
+			}
+		} else if (pgn_or_fen === 'pgn') {
+			let movesStr = '';
+			if (gameState.study.moves && gameState.study.moves.length > 0) {
+				const startIndex = (gameState.study.moves[0].moveId === 'root' ? 1 : 0) + (firstPlayer === 'b' ? 1 : 0);
+				if (firstPlayer === 'b') {
+					movesStr += `${initialMoveNumber}... ${gameState.study.moves[startIndex - 1].san}`;
+				}
+				gameState.study.moves
+					.slice(startIndex)
+					.forEach((move, index) => {
+						const moveNumber = initialMoveNumber + (firstPlayer === 'b' ? 1 : 0) + Math.floor(index / 2);
+						movesStr += (index % 2 === 0)
+							? ` ${moveNumber}. ${move.san}`
+							: ` ${move.san}`;
+						if (move.variants && move.variants.length > 0) {
+							movesStr += ' (';
+							move.variants.forEach((variant) => {
+								if (!variant.moves || variant.moves.length === 0) return;
+								const bVariant = index % 2 === 0;
+								if (bVariant) movesStr += `${moveNumber}... ${variant.moves[0].san}`;
+								variant.moves
+									.slice((bVariant ? 1 : 0))
+									.forEach((variantMove, variantIndex) => {
+										const variantMoveNumber = moveNumber + 1 + Math.floor(variantIndex / 2);
+										movesStr += (variantIndex % 2 === 0)
+											? ` ${variantMoveNumber}. ${variantMove.san}`
+											: ` ${variantMove.san}`;
+									});
+							});
+							movesStr += ')';
+						}
+					});
+			}
+			try {
+				navigator.clipboard.writeText(movesStr.trim());
+				new Notice('PGN copied to clipboard!');
+			} catch (e) {
+				new Notice('Could not copy to clipboard:', e);
+			}
+		}
+	}, [chessLogic, firstPlayer, gameState.study.moves, initialMoveNumber])
+
 	const onSaveButtonClick = useCallback(async () => {
 		try {
 			const saveData = {
@@ -410,20 +460,10 @@ export const ChessStudy = ({
 							}
 							onSaveButtonClick={onSaveButtonClick}
 							onPgnCopyButtonClick={() => {
-								try {
-									navigator.clipboard.writeText(chessLogic.pgn())
-									new Notice('PGN copied to clipboard!');
-								} catch (e) {
-									new Notice('Could not copy to clipboard:', e);
-								}
+								onCopyButtonClick('pgn');
 							}}
 							onFenCopyButtonClick={() => {
-								try {
-									navigator.clipboard.writeText(chessLogic.fen())
-									new Notice('FEN copied to clipboard!');
-								} catch (e) {
-									new Notice('Could not copy to clipboard:', e);
-								}
+								onCopyButtonClick('fen');
 							}}
 						/>
 					</div>
