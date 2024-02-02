@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, Copy, ListRestart, Save, Undo2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ClipboardList, Copy, ListRestart, Microscope, Save, Undo2 } from 'lucide-react';
 import * as React from 'react';
 import { ReactNode, useEffect, useMemo, useRef } from 'react';
 import { ChessStudyMove } from 'src/lib/storage';
@@ -116,7 +116,8 @@ export const PgnViewer = React.memo(
 		onMoveItemClick,
 		onResetButtonClick,
 		onSaveButtonClick,
-		onCopyButtonClick,
+		onPgnCopyButtonClick,
+		onFenCopyButtonClick,
 	}: {
 		history: ChessStudyMove[];
 		currentMoveId: string;
@@ -128,7 +129,8 @@ export const PgnViewer = React.memo(
 		onMoveItemClick: (moveId: string) => void;
 		onResetButtonClick: () => void;
 		onSaveButtonClick: () => void;
-		onCopyButtonClick: () => void;
+		onPgnCopyButtonClick: () => void;
+		onFenCopyButtonClick: () => void;
 	}) => {
 		const movePairs = useMemo(() => chunkArray(history, 2, firstPlayer === 'b'), [history]);
 
@@ -299,24 +301,30 @@ export const PgnViewer = React.memo(
 					</div>
 				</div>
 				<div className="button-section">
-					<button onClick={() => onResetButtonClick()}>
+					<button className="study-button" onClick={() => onResetButtonClick()}>
+						<Microscope strokeWidth={'1px'} />
+					</button>
+					<button className="study-button" onClick={() => onResetButtonClick()}>
 						<ListRestart strokeWidth={'1px'} />
 					</button>
-					<button onClick={() => onBackButtonClick()}>
+					<button className="study-button" onClick={() => onBackButtonClick()}>
 						<ArrowLeft />
 					</button>
-					<button onClick={() => onForwardButtonClick()}>
+					<button className="study-button" onClick={() => onForwardButtonClick()}>
 						<ArrowRight />
 					</button>
 				</div>
 				<div className="button-section">
-					<button onClick={() => onUndoButtonClick()}>
+					<button className="study-button" onClick={() => onUndoButtonClick()}>
 						<Undo2 />
 					</button>
-					<button onClick={() => onSaveButtonClick()}>
+					<button className="study-button" onClick={() => onSaveButtonClick()}>
 						<Save strokeWidth={'1px'} />
 					</button>
-					<button onClick={() => onCopyButtonClick()}>
+					<button className="study-button" onClick={() => onPgnCopyButtonClick()}>
+						<ClipboardList strokeWidth={'1px'} />
+					</button>
+					<button className="study-button" onClick={() => onFenCopyButtonClick()}>
 						<Copy strokeWidth={'1px'} />
 					</button>
 				</div>

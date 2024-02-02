@@ -409,10 +409,18 @@ export const ChessStudy = ({
 								dispatch({ type: 'DISPLAY_INITIAL_BOARD' })
 							}
 							onSaveButtonClick={onSaveButtonClick}
-							onCopyButtonClick={() => {
+							onPgnCopyButtonClick={() => {
+								try {
+									navigator.clipboard.writeText(chessLogic.pgn())
+									new Notice('PGN copied to clipboard!');
+								} catch (e) {
+									new Notice('Could not copy to clipboard:', e);
+								}
+							}}
+							onFenCopyButtonClick={() => {
 								try {
 									navigator.clipboard.writeText(chessLogic.fen())
-									new Notice('Copied to clipboard!');
+									new Notice('FEN copied to clipboard!');
 								} catch (e) {
 									new Notice('Could not copy to clipboard:', e);
 								}
