@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, ClipboardPaste, Copy, ListRestart, Microscope, Save, Undo2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ClipboardPaste, Copy, ListRestart, Save, Tags, Undo2 } from 'lucide-react';
 import * as React from 'react';
 import { ReactNode, useEffect, useMemo, useRef } from 'react';
 import { ChessStudyMove } from 'src/lib/storage';
@@ -110,11 +110,12 @@ export const PgnViewer = React.memo(
 		currentMoveId,
 		firstPlayer,
 		initialMoveNumber,
-		onUndoButtonClick,
+		onTagButtonClick,
+		onResetButtonClick,
 		onBackButtonClick,
 		onForwardButtonClick,
 		onMoveItemClick,
-		onResetButtonClick,
+		onUndoButtonClick,
 		onSaveButtonClick,
 		onPgnCopyButtonClick,
 		onFenCopyButtonClick,
@@ -123,11 +124,12 @@ export const PgnViewer = React.memo(
 		currentMoveId: string;
 		firstPlayer: string;
 		initialMoveNumber: number;
-		onUndoButtonClick: () => void;
+		onTagButtonClick: () => void;
+		onResetButtonClick: () => void;
 		onBackButtonClick: () => void;
 		onForwardButtonClick: () => void;
 		onMoveItemClick: (moveId: string) => void;
-		onResetButtonClick: () => void;
+		onUndoButtonClick: () => void;
 		onSaveButtonClick: () => void;
 		onPgnCopyButtonClick: () => void;
 		onFenCopyButtonClick: () => void;
@@ -301,8 +303,8 @@ export const PgnViewer = React.memo(
 					</div>
 				</div>
 				<div className="button-section">
-					<button className="study-button" onClick={() => onResetButtonClick()}>
-						<Microscope strokeWidth={'1px'} />
+					<button className="study-button" onClick={() => onTagButtonClick()}>
+						<Tags strokeWidth={'1px'} />
 					</button>
 					<button className="study-button" onClick={() => onResetButtonClick()}>
 						<ListRestart strokeWidth={'1px'} />

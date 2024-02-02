@@ -49,7 +49,8 @@ export type GameActions =
 	| { type: 'DISPLAY_PREVIOUS_MOVE_IN_HISTORY' }
 	| { type: 'DISPLAY_SELECTED_MOVE_IN_HISTORY'; moveId: string }
 	| { type: 'SYNC_SHAPES'; shapes: DrawShape[] }
-	| { type: 'SYNC_COMMENT'; comment: JSONContent | null };
+	| { type: 'SYNC_COMMENT'; comment: JSONContent | null }
+	| { type: 'TAG_CURRENT_MOVE' };
 
 export const ChessStudy = ({
 	source,
@@ -205,6 +206,52 @@ export const ChessStudy = ({
 
 					move.comment = action.comment;
 					draft.currentMove = move;
+
+					return draft;
+				}
+				case 'TAG_CURRENT_MOVE': {
+					if (!chessView || !draft || draft.study.moves.length == 0) return draft;
+					if (draft.currentMove?.moveId === 'root') return draft;
+
+					const moves = draft.study.moves;
+					const { variant, moveIndex } = findMoveIndex(moves, draft.currentMove?.moveId);
+					//Are we in a variant? Are we not? Decide which move to display
+
+					let moveToTag = null;
+					if (variant) {
+						const variantMoves =
+							moves[variant.parentMoveIndex].variants[variant.variantIndex].moves;
+
+						if (typeof variantMoves[moveIndex] !== 'undefined') {
+							moveToTag = variantMoves[moveIndex];
+						}
+					} else {
+						if (typeof moves[moveIndex] !== 'undefined') {
+							moveToTag = moves[moveIndex];
+						}
+					}
+
+					if (moveToTag === null) {
+						return draft;
+					}
+
+					const lastTwo = moveToTag.san.slice(-2);
+
+					if (lastTwo === '!!') {
+						moveToTag.san = moveToTag.san.slice(0, -2) + '!';
+					} else if (lastTwo === '!?') {
+						moveToTag.san = moveToTag.san.slice(0, -2) + '?!';
+					} else if (lastTwo === '?!') {
+						moveToTag.san = moveToTag.san.slice(0, -2) + '?';
+					} else if (lastTwo === '??') {
+						moveToTag.san = moveToTag.san.slice(0, -2);
+					} else if (lastTwo.charAt(1) === '!') {
+						moveToTag.san = moveToTag.san.slice(0, -1) + '!?';
+					} else if (lastTwo.charAt(1) === '?') {
+						moveToTag.san = moveToTag.san.slice(0, -1) + '??';
+					} else {
+						moveToTag.san = moveToTag.san + '!!';
+					}
 
 					return draft;
 				}
@@ -397,7 +444,7 @@ export const ChessStudy = ({
 		try {
 			const saveData = {
 				...gameState.study,
-				currentMove: gameState.currentMove,
+				currentMove: gameState.currentMove as ChessStudyMove | null,
 			};
 			await dataAdapter.saveFile(saveData, chessStudyId);
 			new Notice('Save successfull!');
@@ -440,8 +487,11 @@ export const ChessStudy = ({
 							currentMoveId={gameState.currentMove?.moveId}
 							firstPlayer={firstPlayer}
 							initialMoveNumber={initialMoveNumber}
-							onUndoButtonClick={() =>
-								dispatch({ type: 'REMOVE_LAST_MOVE_FROM_HISTORY' })
+							onTagButtonClick={() =>
+								dispatch({ type: 'TAG_CURRENT_MOVE' })
+							}
+							onResetButtonClick={() =>
+								dispatch({ type: 'DISPLAY_INITIAL_BOARD' })
 							}
 							onBackButtonClick={() =>
 								dispatch({ type: 'DISPLAY_PREVIOUS_MOVE_IN_HISTORY' })
@@ -455,8 +505,8 @@ export const ChessStudy = ({
 									moveId: moveId,
 								})
 							}
-							onResetButtonClick={() =>
-								dispatch({ type: 'DISPLAY_INITIAL_BOARD' })
+							onUndoButtonClick={() =>
+								dispatch({ type: 'REMOVE_LAST_MOVE_FROM_HISTORY' })
 							}
 							onSaveButtonClick={onSaveButtonClick}
 							onPgnCopyButtonClick={() => {
