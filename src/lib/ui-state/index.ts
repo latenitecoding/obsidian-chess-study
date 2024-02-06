@@ -90,7 +90,7 @@ export const displayMoveInHistory = (
 
 	//Figure out where we are
 	const currentMove = draft.currentMove;
-	const currentMoveId = currentMove.moveId;
+	const currentMoveId = currentMove?.moveId;
 
 	const moves = draft.study.moves;
 
@@ -113,7 +113,8 @@ export const displayMoveInHistory = (
 		}
 	}
 
-	if (!moveToDisplay && offset > 0) return draft;
+	if (!moveToDisplay && offset === 0) return draft;
+	if (!moveToDisplay && offset > 0) moveToDisplay = moves[0];
 
 	const chess = (!moveToDisplay || moveToDisplay.moveId === 'root')
 		? (options.fen)
