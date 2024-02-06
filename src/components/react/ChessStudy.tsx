@@ -44,10 +44,10 @@ export interface GameState {
 export type GameActions =
 	| { type: 'ADD_MOVE_TO_HISTORY'; move: Move }
 	| { type: 'REMOVE_LAST_MOVE_FROM_HISTORY' }
-	| { type: 'DISPLAY_INITIAL_BOARD' }
 	| { type: 'DISPLAY_NEXT_MOVE_IN_HISTORY' }
 	| { type: 'DISPLAY_PREVIOUS_MOVE_IN_HISTORY' }
 	| { type: 'DISPLAY_SELECTED_MOVE_IN_HISTORY'; moveId: string }
+	| { type: 'RATE_CURRENT_MOVE' }
 	| { type: 'SYNC_SHAPES'; shapes: DrawShape[] }
 	| { type: 'SYNC_COMMENT'; comment: JSONContent | null }
 	| { type: 'TAG_CURRENT_MOVE' };
@@ -93,16 +93,6 @@ export const ChessStudy = ({
 	const [gameState, dispatch] = useImmerReducer<GameState, GameActions>(
 		(draft, action) => {
 			switch (action.type) {
-				case 'DISPLAY_INITIAL_BOARD': {
-					if (!chessView || !draft || draft.study.moves.length === 0) return draft;
-					if (draft.study.moves.length === 1 && draft.study.moves[0].moveId === 'root') return draft;
-
-					displayInitialBoard(draft, chessView, setChessLogic, {
-						fen: fen,
-					});
-
-					return draft;
-				}
 				case 'DISPLAY_NEXT_MOVE_IN_HISTORY': {
 					if (!chessView || !draft || draft.study.moves.length === 0) return draft;
 					if (draft.study.moves.length === 1 && draft.study.moves[0].moveId === 'root') return draft;
@@ -186,6 +176,56 @@ export const ChessStudy = ({
 						offset: 0,
 						selectedMoveId: selectedMoveId,
 					});
+
+					return draft;
+				}
+				case 'RATE_CURRENT_MOVE': {
+					if (!chessView || !draft || draft.study.moves.length == 0) return draft;
+					if (draft.currentMove?.moveId === 'root') return draft;
+
+					const moves = draft.study.moves;
+					const { variant, moveIndex } = findMoveIndex(moves, draft.currentMove?.moveId);
+					//Are we in a variant? Are we not? Decide which move to display
+
+					let moveToTag = null;
+					if (variant) {
+						const variantMoves =
+							moves[variant.parentMoveIndex].variants[variant.variantIndex].moves;
+
+						if (typeof variantMoves[moveIndex] !== 'undefined') {
+							moveToTag = variantMoves[moveIndex];
+						}
+					} else {
+						if (typeof moves[moveIndex] !== 'undefined') {
+							moveToTag = moves[moveIndex];
+						}
+					}
+
+					if (moveToTag === null) {
+						return draft;
+					}
+
+					const lastThree = (moveToTag.san.length >= 3)
+						? moveToTag.san.slice(-3)
+						: ' ' + moveToTag.san.slice(-2);
+
+					if (lastThree === '+/=') {
+						moveToTag.san = moveToTag.san.slice(0, -3) + '=';
+					} else if (lastThree === '+/-') {
+						moveToTag.san = moveToTag.san.slice(0, -3) + '+/=';
+					} else if (lastThree === '=/+') {
+						moveToTag.san = moveToTag.san.slice(0, -3) + '-/+';
+					} else if (lastThree === '-/+') {
+						moveToTag.san = moveToTag.san.slice(0, -3) + '-+';
+					} else if (lastThree.slice(-2) === '+-') {
+						moveToTag.san = moveToTag.san.slice(0, -2) + '+/-';
+					} else if (lastThree.slice(-2) === '-+') {
+						moveToTag.san = moveToTag.san.slice(0, -2);
+					} else if (lastThree.charAt(2) === '=') {
+						moveToTag.san = moveToTag.san.slice(0, -1) + '=/+';
+					} else {
+						moveToTag.san = moveToTag.san + '+-';
+					}
 
 					return draft;
 				}
@@ -490,8 +530,8 @@ export const ChessStudy = ({
 							onTagButtonClick={() =>
 								dispatch({ type: 'TAG_CURRENT_MOVE' })
 							}
-							onResetButtonClick={() =>
-								dispatch({ type: 'DISPLAY_INITIAL_BOARD' })
+							onRateButtonClick={() =>
+								dispatch({ type: 'RATE_CURRENT_MOVE' })
 							}
 							onBackButtonClick={() =>
 								dispatch({ type: 'DISPLAY_PREVIOUS_MOVE_IN_HISTORY' })
