@@ -114,6 +114,7 @@ export const displayMoveInHistory = (
 	}
 
 	if (!moveToDisplay && offset === 0) return draft;
+	if (!moveToDisplay && variant) moveToDisplay = moves[variant.parentMoveIndex + offset];
 	if (!moveToDisplay && offset > 0) moveToDisplay = moves[0];
 
 	const chess = (!moveToDisplay || moveToDisplay.moveId === 'root')

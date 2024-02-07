@@ -210,21 +210,21 @@ export const ChessStudy = ({
 						: ' ' + moveToTag.san.slice(-2);
 
 					if (lastThree === '+/=') {
-						moveToTag.san = moveToTag.san.slice(0, -3) + '=';
+						moveToTag.san = moveToTag.san.slice(0, -3) + '=/+';
 					} else if (lastThree === '+/-') {
-						moveToTag.san = moveToTag.san.slice(0, -3) + '+/=';
-					} else if (lastThree === '=/+') {
 						moveToTag.san = moveToTag.san.slice(0, -3) + '-/+';
+					} else if (lastThree === '=/+') {
+						moveToTag.san = moveToTag.san.slice(0, -3) + '+/-';
 					} else if (lastThree === '-/+') {
-						moveToTag.san = moveToTag.san.slice(0, -3) + '-+';
+						moveToTag.san = moveToTag.san.slice(0, -3) + '+-';
 					} else if (lastThree.slice(-2) === '+-') {
-						moveToTag.san = moveToTag.san.slice(0, -2) + '+/-';
+						moveToTag.san = moveToTag.san.slice(0, -2) + '-+';
 					} else if (lastThree.slice(-2) === '-+') {
 						moveToTag.san = moveToTag.san.slice(0, -2);
 					} else if (lastThree.charAt(2) === '=') {
-						moveToTag.san = moveToTag.san.slice(0, -1) + '=/+';
+						moveToTag.san = moveToTag.san.slice(0, -1) + '+/=';
 					} else {
-						moveToTag.san = moveToTag.san + '+-';
+						moveToTag.san = moveToTag.san + '=';
 					}
 
 					return draft;
