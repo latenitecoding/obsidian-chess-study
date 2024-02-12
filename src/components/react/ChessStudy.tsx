@@ -472,7 +472,11 @@ export const ChessStudy = ({
 					});
 			}
 			try {
-				navigator.clipboard.writeText(movesStr.trim());
+				if (fen === new Chess().fen()) {
+					navigator.clipboard.writeText(`${movesStr.trim()}`);
+				} else {
+					navigator.clipboard.writeText(`[FEN ${fen}]\n${movesStr.trim()}`);
+				}
 				new Notice('PGN copied to clipboard!');
 			} catch (e) {
 				new Notice('Could not copy to clipboard:', e);

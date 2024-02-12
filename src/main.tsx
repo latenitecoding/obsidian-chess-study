@@ -55,7 +55,15 @@ export default class ChessStudyPlugin extends Plugin {
 					try {
 						let pgn = '', fen = '';
 						if (pgn_or_fen) {
-							if (pgn_or_fen.includes('/')) {
+							if (pgn_or_fen.includes(']')) {
+								let tags = pgn_or_fen.split(']');
+								tags
+									.filter((line) => line.includes('FEN'))
+									.forEach((fenStr) => {
+										fen = fenStr.split('FEN')[1].trim();
+									});
+								pgn = tags[tags.length - 1].trim();
+							} else if (pgn_or_fen.includes('/')) {
 								fen = pgn_or_fen.trim();
 							} else {
 								pgn = pgn_or_fen.trim();
@@ -83,7 +91,9 @@ export default class ChessStudyPlugin extends Plugin {
 								shapes: [],
 								comment: null,
 							})),
+							currentMove: null,
 						};
+						chessStudyFileData.currentMove = chessStudyFileData.moves[0];
 
 						this.dataAdapter.createStorageFolderIfNotExists();
 
